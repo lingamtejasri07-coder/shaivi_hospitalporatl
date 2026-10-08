@@ -1,0 +1,397 @@
+/* ==========================================================================
+   Medicare Hospital & Appointment Management Portal - Custom Design System
+   Modern Medical Palette: Emerald, Deep Navy, Cyan, Slate, Soft Glass
+   ========================================================================== */
+
+:root {
+  --primary-color: #0f766e;        /* Medical Emerald Teal */
+  --primary-hover: #115e59;
+  --primary-light: #ccfbf1;
+  --secondary-color: #0284c7;      /* Clinical Blue */
+  --secondary-light: #e0f2fe;
+  --accent-color: #10b981;
+  --dark-navy: #0f172a;
+  --card-bg: #ffffff;
+  --body-bg: #f8fafc;
+  --border-color: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Status Colors */
+  --status-pending: #f59e0b;
+  --status-pending-bg: #fef3c7;
+  --status-confirmed: #0284c7;
+  --status-confirmed-bg: #e0f2fe;
+  --status-completed: #10b981;
+  --status-completed-bg: #d1fae5;
+  --status-cancelled: #ef4444;
+  --status-cancelled-bg: #fee2e2;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--body-bg);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar-custom {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.navbar-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  border-radius: 10px;
+  font-size: 1.25rem;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #475569;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+/* Hero Section */
+.hero-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #0f766e 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(204, 251, 241, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Filter Buttons */
+.dept-filter-btn {
+  border: 1px solid var(--border-color);
+  background: white;
+  color: #475569;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dept-filter-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.dept-filter-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.25);
+}
+
+/* Doctor Cards */
+.doctor-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+  border-color: #99f6e4;
+}
+
+.doctor-card-header {
+  padding: 1.5rem;
+  background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.doctor-avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #0f766e, #0284c7);
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.2);
+}
+
+/* Department Badges */
+.badge-dept {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-cardio {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-pediatrics {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.badge-ortho {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-neuro {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.badge-general {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.badge-derma {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+/* Appointment Status Badges */
+.badge-status {
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badge-pending {
+  background-color: var(--status-pending-bg);
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-confirmed {
+  background-color: var(--status-confirmed-bg);
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.badge-completed {
+  background-color: var(--status-completed-bg);
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-cancelled {
+  background-color: var(--status-cancelled-bg);
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Interactive Time Slot Grid */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.slot-pill {
+  padding: 0.75rem 0.5rem;
+  border: 2px solid var(--border-color);
+  background-color: white;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.slot-pill:hover:not(.booked):not(.disabled) {
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+.slot-pill.selected {
+  border-color: var(--primary-color) !important;
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3);
+}
+
+.slot-pill.booked {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  position: relative;
+  text-decoration: line-through;
+}
+
+.slot-pill.booked::after {
+  content: 'Booked';
+  display: block;
+  font-size: 0.7rem;
+  color: #ef4444;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Custom Primary Button */
+.btn-primary-custom {
+  background: linear-gradient(135deg, var(--primary-color), #0d9488);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+  background: linear-gradient(135deg, #115e59, var(--primary-color));
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.3);
+}
+
+.btn-outline-custom {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Card Containers */
+.app-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.app-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Tables */
+.table-custom {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-custom thead th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table-custom tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: #0f172a;
+  color: #94a3b8;
+  border-top: 1px solid #1e293b;
+}
+
+/* Micro animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out forwards;
+}

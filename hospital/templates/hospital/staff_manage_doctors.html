@@ -1,0 +1,171 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Manage Doctors & Schedules | MediCare Staff{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a href="{% url 'hospital:staff_dashboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
+                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill small">Staff Admin</span>
+            </div>
+            <h2 class="fw-bold text-dark mb-0">Doctor Schedule & Roster Control</h2>
+            <p class="text-muted small mb-0">Activate or deactivate doctor availability, adjust fees, and register new specialists.</p>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-primary-custom rounded-pill btn-sm px-3" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
+                <i class="bi bi-person-plus-fill me-1"></i> Register New Doctor
+            </button>
+        </div>
+    </div>
+
+    <!-- Doctors Table -->
+    <div class="app-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Available Days</th>
+                        <th>Fee</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doctor in doctors %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="doctor-avatar-circle" style="width: 40px; height: 40px; font-size: 1rem;">
+                                        {{ doctor.name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ doctor.display_name }}</div>
+                                        <div class="small text-muted">{{ doctor.qualification }} &bull; {{ doctor.specialization }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge-dept {{ doctor.department_badge_class }}">{{ doctor.department }}</span>
+                            </td>
+                            <td class="small">{{ doctor.available_days }}</td>
+                            <td><strong class="text-success">${{ doctor.consultation_fee }}</strong></td>
+                            <td class="small text-muted">{{ doctor.room_number }}</td>
+                            <td>
+                                {% if doctor.active_status %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill small">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill small">
+                                        <i class="bi bi-dash-circle-fill me-1"></i> Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="POST" action="{% url 'hospital:staff_toggle_doctor' doctor.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm {% if doctor.active_status %}btn-outline-danger{% else %}btn-outline-success{% endif %} rounded-pill px-3">
+                                        {% if doctor.active_status %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No doctors found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Register New Doctor Modal -->
+<div class="modal fade" id="addDoctorModal" tabindex="-1" aria-labelledby="addDoctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-header bg-light border-0 py-3">
+                    <h5 class="modal-title fw-bold text-dark" id="addDoctorModalLabel">
+                        <i class="bi bi-person-plus-fill me-2 text-primary"></i>Register New Doctor
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Doctor Name (e.g. John Doe) <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Department <span class="text-danger">*</span></label>
+                            {{ form.department }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Specialization <span class="text-danger">*</span></label>
+                            {{ form.specialization }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold small">Consultation Fee ($) <span class="text-danger">*</span></label>
+                            {{ form.consultation_fee }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold small">Experience (Years)</label>
+                            {{ form.experience_years }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Qualifications (e.g. MBBS, MD)</label>
+                            {{ form.qualification }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Clinic Room / Suite</label>
+                            {{ form.room_number }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Available Days (e.g. Monday, Wednesday, Friday) <span class="text-danger">*</span></label>
+                            {{ form.available_days }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Email Address</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Phone Number</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Bio & Credentials</label>
+                            {{ form.bio }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.active_status }}
+                                <label class="form-check-label small" for="{{ form.active_status.id_for_label }}">
+                                    Active for public booking
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-3">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom rounded-pill px-4">Register Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

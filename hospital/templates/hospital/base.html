@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Medicare Portal | Hospital & Appointment Management{% endblock %}</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom Application CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark fs-4" href="{% url 'hospital:home' %}">
+                <span class="navbar-brand-badge">
+                    <i class="bi bi-hospital"></i>
+                </span>
+                <span>Medi<span class="text-primary" style="color: var(--primary-color) !important;">Care</span></span>
+            </a>
+            
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'hospital:home' %}">
+                            <i class="bi bi-person-badge me-1"></i> Our Specialists
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'book_appointment' %}active{% endif %}" href="{% url 'hospital:book_appointment' %}">
+                            <i class="bi bi-calendar-plus me-1"></i> Book Appointment
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'patient_dashboard' %}active{% endif %}" href="{% url 'hospital:patient_dashboard' %}">
+                            <i class="bi bi-clock-history me-1"></i> Patient Portal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'staff' in request.path %}active{% endif %}" href="{% url 'hospital:staff_dashboard' %}">
+                            <i class="bi bi-shield-lock me-1"></i> Staff Portal
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill px-3 py-2" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                <li><a class="dropdown-item" href="{% url 'hospital:staff_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> Staff Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'hospital:staff_manage_doctors' %}"><i class="bi bi-people me-2"></i> Doctor Schedules</a></li>
+                                <li><a class="dropdown-item" href="/admin/" target="_blank"><i class="bi bi-gear me-2"></i> Django Admin</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'hospital:staff_logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Log Out</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'hospital:staff_login' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Staff Login
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'hospital:book_appointment' %}" class="btn btn-primary-custom btn-sm px-3 py-2 rounded-pill">
+                        <i class="bi bi-calendar-check me-1"></i> Book Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Django Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% else %}warning{% endif %} alert-dismissible fade show shadow-sm rounded-3" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="bi bi-exclamation-octagon-fill fs-5"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Block -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-5 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="navbar-brand-badge" style="width:36px; height:36px; font-size:1rem;">
+                            <i class="bi bi-hospital"></i>
+                        </span>
+                        <span class="fs-4 fw-bold text-white">MediCare Portal</span>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        Premier multi-specialty healthcare & patient appointment management portal. Connecting patients with world-class specialists in Cardiology, Pediatrics, Orthopedics, Neurology, and more.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-dot"></i> Emergency 24/7
+                        </span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                            <i class="bi bi-shield-check"></i> HIPAA Compliant
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-bold mb-3">Departments</h6>
+                    <ul class="list-unstyled text-secondary small d-flex flex-column gap-2 mb-0">
+                        <li><a href="{% url 'hospital:home' %}?department=Cardiology" class="text-decoration-none text-secondary">Cardiology</a></li>
+                        <li><a href="{% url 'hospital:home' %}?department=Pediatrics" class="text-decoration-none text-secondary">Pediatrics</a></li>
+                        <li><a href="{% url 'hospital:home' %}?department=Orthopedics" class="text-decoration-none text-secondary">Orthopedics</a></li>
+                        <li><a href="{% url 'hospital:home' %}?department=Neurology" class="text-decoration-none text-secondary">Neurology</a></li>
+                        <li><a href="{% url 'hospital:home' %}?department=General+Medicine" class="text-decoration-none text-secondary">General Medicine</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="text-white fw-bold mb-3">Patient Resources</h6>
+                    <ul class="list-unstyled text-secondary small d-flex flex-column gap-2 mb-0">
+                        <li><a href="{% url 'hospital:book_appointment' %}" class="text-decoration-none text-secondary">Book an Appointment</a></li>
+                        <li><a href="{% url 'hospital:patient_dashboard' %}" class="text-decoration-none text-secondary">View Appointment Status</a></li>
+                        <li><a href="{% url 'hospital:staff_login' %}" class="text-decoration-none text-secondary">Staff & Doctor Login</a></li>
+                        <li><a href="/admin/" target="_blank" class="text-decoration-none text-secondary">Django Administration</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="text-white fw-bold mb-3">Hospital Contact</h6>
+                    <p class="text-secondary small mb-1"><i class="bi bi-geo-alt me-2 text-primary"></i> 100 Medical Center Blvd, Suite 400</p>
+                    <p class="text-secondary small mb-1"><i class="bi bi-telephone me-2 text-primary"></i> +1 (800) 555-CARE (2273)</p>
+                    <p class="text-secondary small mb-1"><i class="bi bi-envelope me-2 text-primary"></i> appointments@medicare.local</p>
+                    <p class="text-secondary small mb-0"><i class="bi bi-clock me-2 text-primary"></i> Outpatient: Mon - Sat 8:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+
+            <hr class="border-secondary opacity-25 my-4">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center small text-secondary">
+                <div>&copy; {% now "Y" %} MediCare Hospital & Patient Management Portal. All rights reserved.</div>
+                <div class="d-flex gap-3">
+                    <span>SQLite ORM Powered</span>
+                    <span>&bull;</span>
+                    <span>Ready for Render Deployment</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Application JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

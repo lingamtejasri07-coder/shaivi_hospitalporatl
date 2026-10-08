@@ -1,0 +1,219 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Patient Portal & Appointments | MediCare{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <!-- Header & Lookup Form -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-lg-7">
+            <span class="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill small mb-2">Patient Services</span>
+            <h2 class="fw-bold text-dark mb-1">My Appointments & Records</h2>
+            <p class="text-muted mb-0">Track upcoming consultations, review doctor diagnoses, or cancel bookings.</p>
+        </div>
+        
+        <div class="col-lg-5">
+            <form method="GET" action="{% url 'hospital:patient_dashboard' %}" class="d-flex gap-2">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <span class="input-group-text bg-white border-0 ps-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        name="identifier" 
+                        value="{{ identifier }}" 
+                        class="form-control border-0 py-2 shadow-none" 
+                        placeholder="Enter Email or Tracking Code (e.g. APT-xxx)..." 
+                        required
+                    >
+                    <button class="btn btn-primary-custom px-4" type="submit">Lookup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Patient Profile Chip (if identified) -->
+    {% if patient %}
+        <div class="app-card p-3 mb-4 bg-white border d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="doctor-avatar-circle" style="width: 48px; height: 48px; font-size: 1.2rem; background: #0284c7;">
+                    {{ patient.name|slice:":1" }}
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ patient.name }}</h5>
+                    <div class="small text-muted">
+                        <i class="bi bi-envelope me-1"></i>{{ patient.email }} &bull; 
+                        <i class="bi bi-telephone me-1"></i>{{ patient.phone }}
+                        {% if patient.blood_group %} &bull; <span class="badge bg-danger-subtle text-danger">Blood: {{ patient.blood_group }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'hospital:book_appointment' %}" class="btn btn-outline-custom btn-sm">
+                    <i class="bi bi-calendar-plus me-1"></i> New Consultation
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Tabs Navigation: Upcoming vs Past Appointments -->
+    <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-4 py-2" id="upcoming-tab" data-bs-toggle="pill" data-bs-target="#upcoming" type="button" role="tab">
+                <i class="bi bi-calendar-check me-2"></i>Upcoming Appointments ({{ upcoming_appointments|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4 py-2" id="past-tab" data-bs-toggle="pill" data-bs-target="#past" type="button" role="tab">
+                <i class="bi bi-clock-history me-2"></i>Past & Consulted ({{ past_appointments|length }})
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="dashboardTabsContent">
+        
+        <!-- UPCOMING APPOINTMENTS TAB -->
+        <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+            {% if upcoming_appointments %}
+                <div class="row g-4">
+                    {% for apt in upcoming_appointments %}
+                        <div class="col-lg-6">
+                            <div class="app-card p-4 h-100 d-flex flex-column border-start border-4 border-primary">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <span class="font-monospace fw-bold text-muted small">#{{ apt.tracking_code }}</span>
+                                        <h5 class="fw-bold text-dark mb-0 mt-1">{{ apt.doctor.display_name }}</h5>
+                                        <span class="badge-dept {{ apt.doctor.department_badge_class }}">{{ apt.doctor.department }}</span>
+                                    </div>
+                                    <span class="badge-status {{ apt.status_badge_class }}">
+                                        {{ apt.status }}
+                                    </span>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-3 small mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted"><i class="bi bi-calendar-event me-1"></i> Date:</span>
+                                        <strong>{{ apt.date|date:"D, M d, Y" }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted"><i class="bi bi-clock me-1"></i> Time Slot:</span>
+                                        <strong class="text-primary">{{ apt.time_slot }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> Location:</span>
+                                        <span>{{ apt.doctor.room_number }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 small">
+                                    <span class="text-muted d-block fw-semibold">Consultation Reason:</span>
+                                    <p class="text-secondary mb-0 text-truncate">{{ apt.reason }}</p>
+                                </div>
+
+                                <div class="mt-auto pt-3 border-top d-flex gap-2 justify-content-end">
+                                    <a href="{% url 'hospital:appointment_detail' apt.tracking_code %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                        <i class="bi bi-eye me-1"></i> Slip & Info
+                                    </a>
+                                    
+                                    {% if apt.status == 'Pending' %}
+                                        <form method="POST" action="{% url 'hospital:cancel_appointment' apt.tracking_code %}" onsubmit="return confirm('Are you sure you want to cancel appointment {{ apt.tracking_code }}?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                <i class="bi bi-x-circle me-1"></i> Cancel
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="app-card p-5 text-center">
+                    <i class="bi bi-calendar2-x fs-1 text-muted mb-3 d-block"></i>
+                    <h5 class="fw-bold text-dark">No Upcoming Appointments</h5>
+                    <p class="text-muted small mb-4">
+                        {% if identifier %}
+                            No scheduled upcoming consultations found for "{{ identifier }}".
+                        {% else %}
+                            Enter your email or reference code in the search bar above to look up your bookings.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'hospital:book_appointment' %}" class="btn btn-primary-custom px-4 py-2 rounded-pill">
+                        <i class="bi bi-calendar-plus me-1"></i> Schedule a Doctor
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- PAST & CONSULTED APPOINTMENTS TAB -->
+        <div class="tab-pane fade" id="past" role="tabpanel">
+            {% if past_appointments %}
+                <div class="app-card overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Ref ID</th>
+                                    <th>Specialist</th>
+                                    <th>Department</th>
+                                    <th>Consult Date</th>
+                                    <th>Status</th>
+                                    <th>Medical Report</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for apt in past_appointments %}
+                                    <tr>
+                                        <td class="font-monospace fw-bold">{{ apt.tracking_code }}</td>
+                                        <td>
+                                            <div class="fw-bold text-dark">{{ apt.doctor.display_name }}</div>
+                                            <div class="small text-muted">{{ apt.doctor.specialization }}</div>
+                                        </td>
+                                        <td><span class="badge-dept {{ apt.doctor.department_badge_class }}">{{ apt.doctor.department }}</span></td>
+                                        <td>
+                                            <div>{{ apt.date|date:"M d, Y" }}</div>
+                                            <div class="small text-muted">{{ apt.time_slot }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge-status {{ apt.status_badge_class }}">{{ apt.status }}</span>
+                                        </td>
+                                        <td>
+                                            {% if apt.medical_reports.exists %}
+                                                {% with report=apt.medical_reports.first %}
+                                                    <a href="{% url 'hospital:view_medical_report' report.id %}" class="btn btn-sm btn-success rounded-pill px-3">
+                                                        <i class="bi bi-file-earmark-medical me-1"></i> View Report
+                                                    </a>
+                                                {% endwith %}
+                                            {% else %}
+                                                <span class="text-muted small italic">No report filed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'hospital:appointment_detail' apt.tracking_code %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                                <i class="bi bi-info-circle me-1"></i> Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="app-card p-5 text-center">
+                    <i class="bi bi-archive fs-1 text-muted mb-3 d-block"></i>
+                    <h5 class="fw-bold text-dark">No Past History Found</h5>
+                    <p class="text-muted small mb-0">Past completed or cancelled consultations will appear here once archived.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Appointment Details #{{ appointment.tracking_code }} | MediCare{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'hospital:patient_dashboard' %}?identifier={{ appointment.tracking_code }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <span class="badge-status {{ appointment.status_badge_class }} fs-6">
+                    {{ appointment.status }}
+                </span>
+            </div>
+
+            <div class="app-card p-4 p-md-5 mb-4">
+                <div class="border-bottom pb-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <span class="text-muted small text-uppercase fw-semibold">Consultation Record</span>
+                        <h2 class="fw-bold text-dark mb-0">Booking #{{ appointment.tracking_code }}</h2>
+                        <small class="text-muted">Booked on {{ appointment.created_date|date:"F d, Y, h:i A" }}</small>
+                    </div>
+                    <div>
+                        <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+                            <i class="bi bi-printer me-1"></i> Print Slip
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <h6 class="text-muted text-uppercase fw-bold small mb-3">Specialist Information</h6>
+                            <h5 class="fw-bold text-dark mb-1">{{ appointment.doctor.display_name }}</h5>
+                            <span class="badge-dept {{ appointment.doctor.department_badge_class }} mb-2 d-inline-block">{{ appointment.doctor.department }}</span>
+                            <div class="small text-muted mb-1">{{ appointment.doctor.specialization }}</div>
+                            <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i> {{ appointment.doctor.room_number }}</div>
+                            <div class="small text-muted"><i class="bi bi-cash-stack me-1"></i> Fee: ${{ appointment.doctor.consultation_fee }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 h-100">
+                            <h6 class="text-muted text-uppercase fw-bold small mb-3">Patient Information</h6>
+                            <h5 class="fw-bold text-dark mb-1">{{ appointment.patient.name }}</h5>
+                            <div class="small text-muted mb-1"><i class="bi bi-envelope me-1"></i> {{ appointment.patient.email }}</div>
+                            <div class="small text-muted mb-1"><i class="bi bi-telephone me-1"></i> {{ appointment.patient.phone }}</div>
+                            <div class="small text-muted mb-1"><i class="bi bi-gender-ambiguous me-1"></i> Gender: {{ appointment.patient.gender }}</div>
+                            {% if appointment.patient.blood_group %}
+                                <div class="small text-muted"><i class="bi bi-droplet me-1"></i> Blood Group: {{ appointment.patient.blood_group }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-2">Scheduled Time</h6>
+                    <div class="p-3 border rounded-3 d-flex flex-wrap gap-4 align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Date</span>
+                            <strong class="fs-6 text-dark">{{ appointment.date|date:"l, F d, Y" }}</strong>
+                        </div>
+                        <div>
+                            <span class="text-muted small d-block">Time Window</span>
+                            <span class="badge bg-primary px-3 py-2 fs-6">{{ appointment.time_slot }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-2">Visit Reason / Clinical Symptoms</h6>
+                    <div class="p-3 bg-light rounded-3 small text-secondary">
+                        {{ appointment.reason }}
+                    </div>
+                </div>
+
+                {% if appointment.admin_notes %}
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold small mb-2">Clinic Staff Notes</h6>
+                        <div class="p-3 bg-light border-start border-3 border-info rounded-3 small text-secondary">
+                            {{ appointment.admin_notes }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Attached Medical Reports -->
+                {% if reports %}
+                    <div class="mt-5 border-top pt-4">
+                        <h4 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-file-earmark-medical-fill text-success me-2"></i>Medical Consultation Reports
+                        </h4>
+                        {% for report in reports %}
+                            <div class="app-card p-4 border-success-subtle bg-light mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0 text-dark">Consultation Note by {{ report.doctor.display_name }}</h6>
+                                    <span class="small text-muted">{{ report.created_date|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Diagnosis:</strong>
+                                    <p class="text-secondary small mb-0">{{ report.diagnosis }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Treatment & Prescription:</strong>
+                                    <p class="text-secondary small mb-0 white-space-pre">{{ report.treatment_plan|linebreaksbr }}</p>
+                                </div>
+                                <a href="{% url 'hospital:view_medical_report' report.id %}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> View Full Report
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Medical Report #{{ report.id }} | MediCare Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-primary rounded-pill btn-sm px-3">
+                    <i class="bi bi-printer me-1"></i> Print Clinical Report
+                </button>
+            </div>
+
+            <div class="app-card p-4 p-md-5 border-top border-4 border-success">
+                
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="navbar-brand-badge" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                                <i class="bi bi-hospital"></i>
+                            </span>
+                            <span class="fw-bold fs-5 text-dark">MediCare Outpatient Clinic</span>
+                        </div>
+                        <h3 class="fw-bold text-dark mb-0">Official Consultation Summary</h3>
+                        <small class="text-muted">Report ID: MED-{{ report.id|stringformat:"05d" }} &bull; Issued on {{ report.created_date|date:"F d, Y" }}</small>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                        <i class="bi bi-patch-check-fill me-1"></i> Certified
+                    </span>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Patient Particulars</span>
+                            <h5 class="fw-bold text-dark mb-1">{{ report.patient.name }}</h5>
+                            <div class="small text-muted">Gender: {{ report.patient.gender }}</div>
+                            <div class="small text-muted">Contact: {{ report.patient.phone }}</div>
+                            <div class="small text-muted">Email: {{ report.patient.email }}</div>
+                            {% if report.patient.blood_group %}
+                                <div class="small text-muted">Blood Group: {{ report.patient.blood_group }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Consulting Physician</span>
+                            <h5 class="fw-bold text-dark mb-1">{{ report.doctor.display_name }}</h5>
+                            <span class="badge-dept {{ report.doctor.department_badge_class }} mb-1">{{ report.doctor.department }}</span>
+                            <div class="small text-muted">{{ report.doctor.qualification }}</div>
+                            <div class="small text-muted">{{ report.doctor.specialization }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis -->
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-2">
+                        <i class="bi bi-activity text-primary me-1"></i> Primary Clinical Diagnosis
+                    </h6>
+                    <div class="p-3 border rounded-3 bg-light text-dark fw-medium">
+                        {{ report.diagnosis }}
+                    </div>
+                </div>
+
+                <!-- Treatment Plan -->
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-2">
+                        <i class="bi bi-prescription text-primary me-1"></i> Treatment Plan & Prescription
+                    </h6>
+                    <div class="p-3 border rounded-3 bg-white text-secondary" style="white-space: pre-line;">
+                        {{ report.treatment_plan }}
+                    </div>
+                </div>
+
+                <!-- Observations / Notes -->
+                {% if report.notes %}
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase fw-bold small mb-2">
+                            <i class="bi bi-journal-text text-primary me-1"></i> Lifestyle & Clinical Notes
+                        </h6>
+                        <div class="p-3 bg-light rounded-3 small text-secondary">
+                            {{ report.notes }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Follow Up -->
+                {% if report.follow_up_date %}
+                    <div class="p-3 bg-primary-subtle border border-primary-subtle rounded-3 d-flex align-items-center gap-3 mb-4">
+                        <i class="bi bi-calendar-event fs-3 text-primary"></i>
+                        <div>
+                            <span class="text-muted small d-block">Recommended Follow-up Visit:</span>
+                            <strong class="text-primary fs-6">{{ report.follow_up_date|date:"l, F d, Y" }}</strong>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Footer Signoff -->
+                <div class="pt-4 border-top d-flex justify-content-between align-items-end mt-4">
+                    <div class="small text-muted">
+                        <div>MediCare Electronic Medical Records System</div>
+                        <div>Confidential Patient Healthcare Document</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-dark">{{ report.doctor.display_name }}</div>
+                        <div class="small text-muted font-monospace">Digitally Signed & Validated</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

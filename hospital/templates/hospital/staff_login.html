@@ -1,0 +1,87 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Staff & Admin Portal Login | MediCare{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <div class="app-card p-4 p-md-5 border-top border-4 border-primary">
+                <div class="text-center mb-4">
+                    <span class="navbar-brand-badge mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="bi bi-shield-lock"></i>
+                    </span>
+                    <h3 class="fw-bold text-dark mb-1">Staff Administration</h3>
+                    <p class="text-muted small">Access the hospital appointment control center</p>
+                </div>
+
+                <!-- Evaluator / Student Quick Demo Hint Box -->
+                <div class="alert alert-info py-3 px-3 rounded-3 small mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-key-fill text-primary"></i>
+                        <strong class="text-dark">Quick Evaluation Credentials:</strong>
+                    </div>
+                    <div class="d-flex justify-content-between font-monospace bg-white p-2 rounded border mb-2">
+                        <span>Username: <strong>admin</strong></span>
+                        <span>Password: <strong>admin123</strong></span>
+                    </div>
+                    <button type="button" id="fillDemoCreds" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> Auto-fill Demo Login
+                    </button>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label fw-semibold small">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control" placeholder="Enter username">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label fw-semibold small">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control" placeholder="Enter password">
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary-custom py-2 rounded-3 fw-semibold">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Staff Portal
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{% url 'hospital:home' %}" class="small text-muted text-decoration-none">
+                            <i class="bi bi-arrow-left me-1"></i> Return to Public Site
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('fillDemoCreds')?.addEventListener('click', function() {
+        document.getElementById('id_username').value = 'admin';
+        document.getElementById('id_password').value = 'admin123';
+    });
+</script>
+{% endblock %}

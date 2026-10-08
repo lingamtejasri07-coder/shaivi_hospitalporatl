@@ -1,0 +1,287 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}Doctors & Specialists Directory | MediCare Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-gradient py-5 mb-5">
+    <div class="container py-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge bg-teal-subtle text-light border border-light-subtle px-3 py-2 rounded-pill mb-3">
+                    <i class="bi bi-shield-check text-warning me-1"></i> Board Certified Medical Experts
+                </span>
+                <h1 class="display-4 fw-extrabold mb-3">
+                    Your Health, Guided by Leading Specialists.
+                </h1>
+                <p class="lead text-light opacity-90 mb-4">
+                    Explore trusted doctors across Cardiology, Pediatrics, Orthopedics, and Neurology. Check live availability and confirm appointment slots instantly.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'hospital:book_appointment' %}" class="btn btn-light btn-lg px-4 py-2 fw-semibold text-primary shadow">
+                        <i class="bi bi-calendar-check me-2"></i> Book Appointment Now
+                    </a>
+                    <a href="{% url 'hospital:patient_dashboard' %}" class="btn btn-outline-light btn-lg px-4 py-2 fw-semibold">
+                        <i class="bi bi-search me-2"></i> Track Appointment
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-box text-center">
+                            <i class="bi bi-person-badge fs-2 text-warning mb-2 d-block"></i>
+                            <h3 class="fw-bold mb-0 text-white">{{ stats.total_doctors }}+</h3>
+                            <div class="small text-light opacity-75">Active Specialists</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box text-center">
+                            <i class="bi bi-diagram-3 fs-2 text-info mb-2 d-block"></i>
+                            <h3 class="fw-bold mb-0 text-white">{{ stats.departments_count }}</h3>
+                            <div class="small text-light opacity-75">Medical Departments</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box text-center">
+                            <i class="bi bi-calendar2-check fs-2 text-success mb-2 d-block"></i>
+                            <h3 class="fw-bold mb-0 text-white">{{ stats.total_appointments }}+</h3>
+                            <div class="small text-light opacity-75">Booked Appointments</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box text-center">
+                            <i class="bi bi-award fs-2 text-warning mb-2 d-block"></i>
+                            <h3 class="fw-bold mb-0 text-white">99.4%</h3>
+                            <div class="small text-light opacity-75">Patient Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Doctors Catalog -->
+<div class="container my-5">
+    
+    <!-- Section Heading & Search Filter -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-lg-6">
+            <h2 class="fw-bold text-dark mb-1">Meet Our Medical Specialists</h2>
+            <p class="text-muted mb-0">Browse accredited physicians, verify consulting days, and secure your visit slot.</p>
+        </div>
+        <div class="col-lg-6">
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                <span class="input-group-text bg-white border-0 ps-3">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input 
+                    type="text" 
+                    id="doctorSearchInput" 
+                    class="form-control border-0 py-2 shadow-none" 
+                    placeholder="Search doctor name, specialization, or department..."
+                    aria-label="Search doctors"
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Department Filter Buttons -->
+    <div class="d-flex flex-wrap gap-2 mb-4 pb-2 border-bottom">
+        {% for dept in departments %}
+            <button 
+                type="button" 
+                class="dept-filter-btn {% if forloop.first %}active{% endif %}" 
+                data-dept="{{ dept.id }}"
+                id="filter-{{ dept.id|slugify }}"
+            >
+                <i class="bi {{ dept.icon }}"></i>
+                <span>{{ dept.name }}</span>
+            </button>
+        {% endfor %}
+    </div>
+
+    <!-- Doctor Cards Grid -->
+    <div class="row g-4" id="doctorsGrid">
+        {% for doctor in doctors %}
+            <div 
+                class="col-lg-4 col-md-6 doctor-card-wrapper" 
+                data-dept="{{ doctor.department }}" 
+                data-name="{{ doctor.name }}"
+                data-spec="{{ doctor.specialization }}"
+            >
+                <div class="doctor-card">
+                    <div class="doctor-card-header d-flex align-items-center gap-3">
+                        <div class="doctor-avatar-circle">
+                            {{ doctor.name|slice:":1" }}
+                        </div>
+                        <div class="flex-grow-1">
+                            <span class="badge-dept {{ doctor.department_badge_class }} mb-1 d-inline-block">
+                                {{ doctor.department }}
+                            </span>
+                            <h5 class="fw-bold mb-0 text-dark">{{ doctor.display_name }}</h5>
+                            <small class="text-muted d-block">{{ doctor.qualification }}</small>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <div class="mb-3">
+                            <div class="text-primary fw-semibold mb-1" style="color: var(--primary-color) !important;">
+                                <i class="bi bi-briefcase me-1"></i> {{ doctor.specialization }}
+                            </div>
+                            <p class="text-muted small mb-0 line-clamp-2">
+                                {{ doctor.bio|default:"Dedicated specialist offering comprehensive outpatient evaluations and customized care plans." }}
+                            </p>
+                        </div>
+
+                        <div class="bg-light p-3 rounded-3 mb-4 small">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted"><i class="bi bi-calendar3 me-1"></i> Available Days:</span>
+                                <span class="fw-semibold text-dark text-end">{{ doctor.available_days }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> Clinic:</span>
+                                <span class="fw-semibold text-dark">{{ doctor.room_number }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-0">
+                                <span class="text-muted"><i class="bi bi-cash-stack me-1"></i> Consultation Fee:</span>
+                                <span class="fw-bold text-success fs-6">${{ doctor.consultation_fee }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <button 
+                                type="button" 
+                                class="btn btn-outline-secondary btn-sm flex-grow-1 rounded-3 py-2"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#doctorModal-{{ doctor.id }}"
+                            >
+                                <i class="bi bi-info-circle me-1"></i> View Profile
+                            </button>
+                            <a 
+                                href="{% url 'hospital:book_appointment' %}?doctor={{ doctor.id }}" 
+                                class="btn btn-primary-custom btn-sm flex-grow-1 rounded-3 py-2 text-center text-decoration-none"
+                            >
+                                <i class="bi bi-calendar-plus me-1"></i> Book Slot
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor Profile Modal -->
+                <div class="modal fade" id="doctorModal-{{ doctor.id }}" tabindex="-1" aria-labelledby="modalLabel-{{ doctor.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                            <div class="modal-header bg-light border-0 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="doctor-avatar-circle" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                        {{ doctor.name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <h5 class="modal-title fw-bold text-dark" id="modalLabel-{{ doctor.id }}">{{ doctor.display_name }}</h5>
+                                        <span class="badge-dept {{ doctor.department_badge_class }}">{{ doctor.department }}</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <h6 class="text-muted text-uppercase fw-bold small">Specialization & Credentials</h6>
+                                    <p class="fw-semibold text-dark mb-1">{{ doctor.specialization }}</p>
+                                    <p class="text-secondary small mb-0">{{ doctor.qualification }} &bull; {{ doctor.experience_years }} Years Clinical Practice</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="text-muted text-uppercase fw-bold small">About the Specialist</h6>
+                                    <p class="text-secondary small mb-0">
+                                        {{ doctor.bio|default:"Provides patient-centered evidence-based consultations with personalized care and monitoring plans." }}
+                                    </p>
+                                </div>
+
+                                <div class="row g-2 p-3 bg-light rounded-3 small mb-3">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">Consultation Fee</span>
+                                        <strong class="text-success fs-5">${{ doctor.consultation_fee }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">Location</span>
+                                        <strong>{{ doctor.room_number }}</strong>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <span class="text-muted d-block">Visiting Schedule</span>
+                                        <strong>{{ doctor.available_days }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 bg-light p-3">
+                                <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+                                <a href="{% url 'hospital:book_appointment' %}?doctor={{ doctor.id }}" class="btn btn-primary-custom rounded-pill px-4">
+                                    <i class="bi bi-calendar-check me-1"></i> Book Appointment Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info py-4 text-center">
+                    <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                    No doctors found matching the criteria.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Empty state element for live search -->
+    <div id="no-doctors-found" class="alert alert-warning py-4 text-center mt-3" style="display: none;">
+        <i class="bi bi-search fs-3 d-block mb-2 text-warning"></i>
+        <h5 class="fw-bold">No Specialists Found</h5>
+        <p class="text-muted mb-0">Try clearing your search query or selecting "All Specialists".</p>
+    </div>
+
+</div>
+
+<!-- Hospital Highlights Banner -->
+<section class="bg-light py-5 border-top">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">Patient Care First</span>
+            <h2 class="fw-bold mt-2">Why Book Your Appointment with MediCare?</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="app-card p-4 text-center h-100">
+                    <div class="badge-dept badge-cardio mx-auto mb-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5 class="fw-bold">Zero Double Booking</h5>
+                    <p class="text-muted small mb-0">Our real-time slot lock prevents double bookings so your reserved consultation time is guaranteed.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="app-card p-4 text-center h-100">
+                    <div class="badge-dept badge-neuro mx-auto mb-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="bi bi-file-medical"></i>
+                    </div>
+                    <h5 class="fw-bold">Digital Medical Reports</h5>
+                    <p class="text-muted small mb-0">Access diagnosis summaries, doctor prescriptions, and lifestyle instructions safely from your patient dashboard.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="app-card p-4 text-center h-100">
+                    <div class="badge-dept badge-ortho mx-auto mb-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <h5 class="fw-bold">Transparent Status Badges</h5>
+                    <p class="text-muted small mb-0">Instantly track appointment workflow stages: Pending, Confirmed, Completed, or Cancelled with live updates.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

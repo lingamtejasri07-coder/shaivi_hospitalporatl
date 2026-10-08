@@ -1,0 +1,101 @@
+{% extends 'hospital/base.html' %}
+{% load static %}
+
+{% block title %}File Consultation Report #{{ appointment.tracking_code }} | MediCare{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'hospital:staff_dashboard' %}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Staff Dashboard
+                </a>
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-file-medical me-1"></i> Medical Consultation Entry
+                </span>
+            </div>
+
+            <div class="app-card p-4 p-md-5 border-top border-4 border-success">
+                <div class="mb-4">
+                    <h3 class="fw-bold text-dark mb-1">
+                        {% if existing_report %}Edit Medical Report{% else %}New Medical Consultation Report{% endif %}
+                    </h3>
+                    <p class="text-muted small">Saving this medical report will automatically mark the appointment as <strong>Completed</strong>.</p>
+                </div>
+
+                <!-- Patient & Appointment Summary Card -->
+                <div class="p-3 bg-light rounded-3 mb-4 small">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <span class="text-muted d-block">Patient:</span>
+                            <strong class="text-dark">{{ appointment.patient.name }}</strong> ({{ appointment.patient.gender }}, {{ appointment.patient.email }})
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-muted d-block">Consulting Doctor:</span>
+                            <strong class="text-dark">{{ appointment.doctor.display_name }}</strong> ({{ appointment.doctor.department }})
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <span class="text-muted d-block">Appointment Date:</span>
+                            <strong>{{ appointment.date|date:"F d, Y" }} &bull; {{ appointment.time_slot }}</strong>
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <span class="text-muted d-block">Original Concern:</span>
+                            <span class="text-secondary">{{ appointment.reason }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.diagnosis.id_for_label }}" class="form-label fw-semibold small">
+                            Clinical Diagnosis <span class="text-danger">*</span>
+                        </label>
+                        {{ form.diagnosis }}
+                        {% if form.diagnosis.errors %}
+                            <div class="text-danger small mt-1">{{ form.diagnosis.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.treatment_plan.id_for_label }}" class="form-label fw-semibold small">
+                            Treatment Plan, Prescriptions & Dosage <span class="text-danger">*</span>
+                        </label>
+                        {{ form.treatment_plan }}
+                        {% if form.treatment_plan.errors %}
+                            <div class="text-danger small mt-1">{{ form.treatment_plan.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold small">
+                            Observations, Lifestyle & Dietary Notes
+                        </label>
+                        {{ form.notes }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.follow_up_date.id_for_label }}" class="form-label fw-semibold small">
+                            Recommended Follow-Up Date (Optional)
+                        </label>
+                        {{ form.follow_up_date }}
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="{% url 'hospital:staff_dashboard' %}" class="btn btn-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary-custom rounded-pill px-4">
+                            <i class="bi bi-check2-circle me-1"></i> Save Medical Report & Complete Visit
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
